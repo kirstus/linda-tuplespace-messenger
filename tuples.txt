@@ -1,0 +1,15 @@
+alice,sd,alicemsg,1571337446.2182853,4
+alice,sd,olar,1571337506.5617962,9
+alice,sd,kakaka,1571337508.713721,10
+alice,sd,kokoko,1571337510.5364516,11
+bob,sd,olar,1571337455.327021,5
+bob,sd,msgbob,1571337460.1418402,7
+bob,sd,tstbob,1571337462.5425093,8
+charles,konversa,olar,1571337488.6327748,1
+charles,konversa,oi,1571337490.3369412,2
+charles,konversa,charlesmsg,1571337493.1123915,3
+charles,konversa,tstc,1571337495.2176955,4
+charles,sd,olar,1571337522.2914565,12
+charles,sd,falae,1571337525.3228695,13
+charles,sd,asofajfaccccccccc,1571337529.4345992,14
+eu,sd,mensagemm,1571339979.4721258,15

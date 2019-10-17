@@ -21,10 +21,53 @@ class lindatp():
         #self.tuples.write('nice\n')
 
     def __del__(self):
-        self.export_tuples()
+        if self.tuplespace != {}:
+            self.export_tuples()
         #self.tuples.write('tchau\n')
         self.tuples.close()
-    
+        self.passwd.close()
+        self.msgnum.close()
+
+    def delete_msg(self, topic, msg_id, passwd):
+        t = (object, topic, object, object, msg_id)
+        r = self.inp(t, passwd)
+        return r
+
+    def get_topics(self):
+        #return {'topics': list(self.tuplespace[5].keys())}
+        ts =self.tuplespace[5]['topic']
+        return list(ts.keys())
+
+    def get_authors(self):
+        ts =self.tuplespace[5]['author']
+        return list(ts.keys())
+
+    def get_messages(self,topic):
+        l = []
+        ts =self.tuplespace[5]['topic'][topic]
+        for author in ts:
+            for t in ts[author]:
+                d = {   'author': t[0],
+                        'topic': t[1],
+                        'msg':  t[2],
+                        'timestamp': t[3],
+                        'id':       t[4]
+                    }
+                l.append(d)
+        return self.insertionSort(l,'timestamp')
+        
+    def insertionSort(self, inputArray, atr):
+        n = len(inputArray)
+        for i in range(1,n):
+            key = inputArray[i][atr]
+            tuplekey = inputArray[i]
+            j = i-1
+            while (j >= 0 and inputArray[j][atr]>key):
+                inputArray[j+1] = inputArray[j]
+                j = j - 1
+            inputArray[j+1] = tuplekey
+        return inputArray
+
     def export_tuples(self):
         for n in self.tuplespace:
             #print(n)
@@ -35,31 +78,31 @@ class lindatp():
                     if tsn['author'][autor][topico] != 0:
                         #print(topico, len(tsn['author'][autor][topico]))
                         for tupla in tsn['author'][autor][topico]:
-                            print(tupla)
-                            print(pack(tupla))
-                            print(unpack(pack(tupla)))
+                            #print(tupla)
+                            #print(pack(tupla))
+                            #print(unpack(pack(tupla)))
                             self.tuples.write(pack(tupla)+'\n')
             for author in tsn['passwd']:
                 p = (author, tsn['passwd'][author], n)
-                print(pack(p))
+                #print(pack(p))
                 self.passwd.write(pack(p)+'\n')
             for topic in tsn['msg_numbers']:
                 mn = (topic , tsn['msg_numbers'][topic], n)
-                print(mn)
+                #print(mn)
                 self.msgnum.write(pack(mn)+'\n')
 
     def import_tuples(self):
         for l in self.tuples.readlines():
             t = unpack(l)
-            print(tuple(t))
+            #print(tuple(t))
             self.insert(tuple(t))
         for l in self.passwd.readlines():
             t = unpack(l)
-            print(tuple(t))
+            #print(tuple(t))
             self.insertpasswd(tuple(t))
         for l in self.msgnum.readlines():
             t = unpack(l)
-            print(tuple(t))
+            #print(tuple(t))
             self.insertnumbers(tuple(t))
 
     def insert(self, t):
@@ -74,8 +117,8 @@ class lindatp():
         author = t[0]
         topic = t[1]
 
-        author = hash(author)
-        topic = hash(topic)
+        #author = hash(author)
+        #topic = hash(topic)
         el = []
         if author not in indice['author']:
             td = {topic: el}
@@ -179,9 +222,9 @@ class lindatp():
             print('topico não pode ser um número!')
             return False
     
-        author = hash(author)
-        topic = hash(topic)
-        print('hashes: ', author, topic)
+        #author = hash(author)
+        #topic = hash(topic)
+        #print('hashes: ', author, topic)
         el = []
         if author not in indice['author']:
             td = {topic: el}
@@ -208,10 +251,10 @@ class lindatp():
         timenow = time.time()
         indice['msg_numbers'][topic] += 1
         indice['author'][author][topic].append(t[0:-2]+(timenow,indice['msg_numbers'][topic]))
-        print(indice['author'][author][topic])
+        #print(indice['author'][author][topic])
         #indice['topic'][topic][author].append(t[0:-2]+(timenow,1))
-        print(indice['topic'][topic][author])
-        print(self.tuplespace[len(t)])
+        #print(indice['topic'][topic][author])
+        #print(self.tuplespace[len(t)])
     
     def validate_args(self,t):
         if len(t) not in self.tuplespace:
@@ -232,8 +275,8 @@ class lindatp():
             print('deve ser fornecido ao menos um dos parâmetros posicionais de identificação (autor|tópico)')
             return False
     
-        h_author = hash(author)
-        h_topic  = hash(topic)
+        h_author = author
+        h_topic  = topic
     
         
         if type(author) is type or len(indice['author'][h_author])==0:
@@ -250,9 +293,8 @@ class lindatp():
         return ts
     
     def validate_user(self,t,passwd):
-        print(len(t))
         indice = self.tuplespace[len(t)]
-        author = hash(t[0])
+        author = t[0]#hash(t[0])
         if author not in indice['passwd'].keys():
             print('O usuário não possui uma senha associada')
             return False
@@ -289,13 +331,13 @@ class lindatp():
 
     def remove_all(self, t):
         indice = self.tuplespace[len(t)]
-        #try{
-        ts = indice['author'][hash(t[0])][hash(t[1])]
-        print('autor',indice['author'][hash(t[0])][hash(t[1])])
-        print('topico',indice['topic'][hash(t[1])][hash(t[0])])
+        #era hash antes
+        ts = indice['author'][t[0]][t[1]]
+        #print('autor',indice['author'][t[0]][t[1]])
+        #print('topico',indice['topic'][t[1]][t[0]])
         ts.remove(t)
-        print('autor',indice['author'][hash(t[0])][hash(t[1])])
-        print('topico',indice['topic'][hash(t[1])][hash(t[0])])
+        #print('autor',indice['author'][t[0]][t[1]])
+        #print('topico',indice['topic'][t[1]][t[0]])
 
     def find(self, t, ts, remove=False, passwd=''):
         for key in ts:
@@ -304,6 +346,8 @@ class lindatp():
             #print('teesse:',ts[key])
             for item in ts[key]:
                 #compara os elementos da sua Query com os Elementos do tuplespace
+                #print('comparacao',item, t)
+                match = 1
                 for q,e in zip(t,item):
                     #print('query:',q,'elemtent:',e)
                     if type(q) == type:
@@ -315,21 +359,21 @@ class lindatp():
                         match = 0
                         break
                 
-                    if match==1:    #remove todas as menções à tupla, e retorna essa tupla
-                        print('chave:', key)
-                        print('teesse:',item)
-                        ret = item
-                        if remove:
-                            if self.validate_user(item,passwd) == False:
-                                return False
-                            print(ts[key])
+                if match==1:    #remove todas as menções à tupla, e retorna essa tupla
+                    #print('chave:', key)
+                    #print('teesse:',item)
+                    ret = item
+                    if remove:
+                        if self.validate_user(item,passwd) == False:
+                            return False
+                        #print(ts[key])
                         
-                            #ts[key].remove(item)   #da no mesmo que a função
-                            self.remove_all(ret)
+                        #ts[key].remove(item)   #da no mesmo que a função
+                        self.remove_all(ret)
                         
-                        print(ret)
-                        print(ts[key])
-                        return ret
+                    #print(ret)
+                    #print(ts[key])
+                    return ret
         return False
 
 
@@ -338,7 +382,6 @@ class lindatp():
     
         if ts == False:
             return False
-        print(ts)
         
         return self.find(t, ts, True, passwd)   
 

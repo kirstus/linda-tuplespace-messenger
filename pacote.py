@@ -31,6 +31,25 @@ def unpack(data):
     return t
     #return tuple(t)
 
+def clean(t):
+    l = []
+    for elem in t:
+        if type(elem) is type:
+            elem = str(elem)
+        l.append(elem)
+    return l
+
+def to_json(t):
+    l = clean(t)
+    d = {   'author':   l[0],
+            'topic':    l[1],
+            'message':  l[2],
+            'timestamp':l[3],
+            'id':       l[4]
+        }
+    return d
+
+
 if __name__ == '__main__':
     msg = ('oi', 'topic', 99, -17.2, object)
     data = pack(msg)
@@ -38,3 +57,5 @@ if __name__ == '__main__':
     print(b)
     for e in b:
         print(type(e))
+    print(to_json(msg))
+    print(type(msg) is tuple)
