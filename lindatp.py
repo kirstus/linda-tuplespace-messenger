@@ -342,13 +342,8 @@ class lindatp():
         
         return self.find(t, ts, True, passwd)   
 
-#### FALTA
-# ordenar as listas por meio desses numeros de mensagem
-# fazer busca binaria para encontrar as tuplas a serem eliminadas
 
-
-lnd = lindatp()
-if __name__ == '__main_':
+if __name__ == '__main__':
     lnd = lindatp()
     
     senhaa = 'penha'

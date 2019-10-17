@@ -1,3 +1,8 @@
+tipo = {    'object' : object,
+            'str' : str,
+            'int' : int,
+            'float' : float}
+
 def pack(t):
     data = ''
     for elem in t:
@@ -10,15 +15,17 @@ def pack(t):
 def unpack(data):
     t = []
     for elem in data.split('\037,'):
-        #if elem.split('\036')[0] == 'class: ':
-        #print(elem)
         try:
-            elem = int(elem)
+            elem = int(elem)                #int
         except ValueError:
             try:
-                elem = float(elem)
+                elem = float(elem)          #float
             except ValueError:
-                elem = elem
+                elem = elem                 #str
+                aux = elem.split('\036')
+                if aux[0] == 'class: ':
+                    #print(aux[1])
+                    elem = tipo[aux[1]]     #tipos
         t.append(elem)
         #print(type(elem))
     return t

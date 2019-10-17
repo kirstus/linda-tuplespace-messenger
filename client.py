@@ -13,6 +13,7 @@ class Cliente():
     dest = (HOST, PORT)
     tcp.connect(dest)
     msg = ('opa','tit',8,2, 941.9, object)
+    msg = ('blop',object,object, object, object)
     print(msg)
     print(pack(msg))
     data = pack(msg)
