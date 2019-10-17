@@ -1,10 +1,112 @@
 import hashlib, binascii, os, time
+from pacote import *
 
 
 # tuple = (autor, topico, msg, [ ... ,]* time_sent, msg_number)
 class lindatp():
     tuplespace = {}
+
+    def __init__(self):
+        self.tuples = open('tuples.txt','r+')
+        self.passwd = open('passwd.txt','r+')
+        self.msgnum  = open('msgnum.txt','r+')
+        self.import_tuples()
+        self.tuples.close()
+        self.passwd.close()
+        self.msgnum.close()
+        self.tuples = open('tuples.txt','w+')
+        self.passwd = open('passwd.txt','w+')
+        self.msgnum  = open('msgnum.txt','w+')
+        #self.tuples.write('oi\n')
+        #self.tuples.write('nice\n')
+
+    def __del__(self):
+        self.export_tuples()
+        #self.tuples.write('tchau\n')
+        self.tuples.close()
     
+    def export_tuples(self):
+        for n in self.tuplespace:
+            #print(n)
+            tsn = self.tuplespace[n]
+            for autor in tsn['author']:
+               # print(autor, len(tsn['author'][autor]))
+                for topico in tsn['author'][autor]:
+                    if tsn['author'][autor][topico] != 0:
+                        #print(topico, len(tsn['author'][autor][topico]))
+                        for tupla in tsn['author'][autor][topico]:
+                            print(tupla)
+                            print(pack(tupla))
+                            print(unpack(pack(tupla)))
+                            self.tuples.write(pack(tupla)+'\n')
+            for author in tsn['passwd']:
+                p = (author, tsn['passwd'][author], n)
+                print(pack(p))
+                self.passwd.write(pack(p)+'\n')
+            for topic in tsn['msg_numbers']:
+                mn = (topic , tsn['msg_numbers'][topic], n)
+                print(mn)
+                self.msgnum.write(pack(mn)+'\n')
+
+    def import_tuples(self):
+        for l in self.tuples.readlines():
+            t = unpack(l)
+            print(tuple(t))
+            self.insert(tuple(t))
+        for l in self.passwd.readlines():
+            t = unpack(l)
+            print(tuple(t))
+            self.insertpasswd(tuple(t))
+        for l in self.msgnum.readlines():
+            t = unpack(l)
+            print(tuple(t))
+            self.insertnumbers(tuple(t))
+
+    def insert(self, t):
+        if len(t) not in self.tuplespace:
+            ts = {  'author': {},
+                    'topic': {},
+                    'passwd': {},
+                    'msg_numbers': {}}
+            self.tuplespace[len(t)] = ts
+
+        indice = self.tuplespace[len(t)]
+        author = t[0]
+        topic = t[1]
+
+        author = hash(author)
+        topic = hash(topic)
+        el = []
+        if author not in indice['author']:
+            td = {topic: el}
+            indice['author'][author] = td
+    
+        if topic not in indice['topic']:
+            ad = {author: el}
+            indice['topic'][topic] = ad
+
+        if author not in indice['topic'][topic]:
+            indice['topic'][topic][author] = el
+
+        if topic not in indice['author'][author]:
+            indice['author'][author][topic] = el
+    
+        indice['author'][author][topic].append(t)
+
+    def insertpasswd(self, t):
+        indice = self.tuplespace[t[2]]
+        author = t[0]
+        if author not in indice['passwd'].keys():
+            indice['passwd'][author] = t[1]
+
+
+    def insertnumbers(self, t):
+        topic = t[0]
+        indice = self.tuplespace[t[2]]
+        if topic not in indice['msg_numbers']:
+            indice['msg_numbers'][topic] = t[1]
+        indice['msg_numbers'][topic] = t[1]
+
     def hash_password(self,password):
         """Hash a password for storing."""
         salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
@@ -24,6 +126,26 @@ class lindatp():
         pwdhash = binascii.hexlify(pwdhash).decode('ascii')
         return pwdhash == stored_password
     
+    def check_empty(self, author, passwd, topic):
+        if author is '':
+            print('Nome do autor não pode ser em branco!')
+            return False
+        elif type(author) is not str:
+            print('autor não pode ser um número!')
+            return False
+    
+        if passwd is '':
+            print('senha não pode ser em branco!')
+        elif type(passwd) is not str:
+            print('senha não pode ser um número!')
+            return False
+        
+        if topic is '':
+            print('Nome do tópico não pode ser em branco!')
+            return False
+        elif type(topic) is not str:
+            print('topico não pode ser um número!')
+            return False
     
     def outp(self,t, passwd):
         if len(t) not in self.tuplespace:
@@ -37,7 +159,6 @@ class lindatp():
         author = t[0]
         topic = t[1]
         
-        #t = t + (1,2)
         if author is '':
             print('Nome do autor não pode ser em branco!')
             return False
@@ -226,33 +347,37 @@ class lindatp():
 # fazer busca binaria para encontrar as tuplas a serem eliminadas
 
 
-if __name__ == '__main__':
+lnd = lindatp()
+if __name__ == '__main_':
     lnd = lindatp()
     
-    senhaa = 'senha a'
-    senhab = 'koolpass'
-    b = ('claudinho','assunto',3, 0, 0)
-    bb = ('claudinho','assunto','opora', 0 , 0)
-    d = ('bochecha','assunto',990, 0, 0)
-    e = ('claudinho','topico',99, 0, 0)
+    senhaa = 'penha'
+    senhab = '100a'
+    b = ('borg','ahoy',3, 0, 0)
+    bb = ('blig','ahoy','aaa', 0 , 0)
+    d = ('blop','ayo',990, 0, 0)
+    e = ('prope','ayo',99, 0, 0)
     a = (2,2,5, 0, 0)
     c = (object, 'assunto', object, object, object)
     print('a: ',a)
     print('b: ',b)
     print('c: ',c)
     print('d: ',d)
+    print('e: ',e)
     print(b[1])
     lnd.outp(a,senhaa)
     lnd.outp(b,senhab)
     lnd.outp(bb,senhab)
     lnd.outp(d,'senha')
+    lnd.outp(e,'eeeee')
     print('procura b')
     print('achou:',lnd.rdp(b))
     print('procura c')
     print('achou:',lnd.rdp(c))
-    print('inp1: ', lnd.inp(b,senhab))
+    #print('inp1: ', lnd.inp(b,senhab))
     print('rdp1: ', lnd.rdp(b))
-    print('inp2: ', lnd.inp(c,senhab))
-    print('inp3: ', lnd.inp(c,senhab))
+    #print('inp2: ', lnd.inp(c,senhab))
+    #print('inp3: ', lnd.inp(c,senhab))
     b = b + (9,0)
     print(b)
+    print(lnd.tuplespace)
