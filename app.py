@@ -13,7 +13,7 @@ def send_msg(topic_name):
     if 'topic' not in request.json or request.json['topic'] == '':
         return 'É necessário um tópico da mensagem para envia-la!'
     elif request.json['topic'] != topic_name:
-        return 'Tópico do camingo não coincide com tópico na tupla!'
+        return 'Tópico do caminho não coincide com tópico na tupla!'
     if 'msg' not in request.json or request.json['msg'] == '':
         return 'É necessário o corpo da mensagem para envia-la!'
     t = []
@@ -25,6 +25,43 @@ def send_msg(topic_name):
     t.append(0)
     r = s.send_msg(tuple(t), passwd)
     return 'ok'
+
+
+@app.route('/messenger/topics/<string:topic_name>', methods=['DELETE'])
+def delete_msgs(topic_name):
+    if 'passwd' not in request.json or request.json['passwd'] == '':
+        return 'É necessário ser o autor da mensagem para remove-la!'
+    #if 'author' not in request.json or request.json['author'] == '':
+    #    return 'É necessário um autor da mensagem para remove-la!'
+    if 'topic' not in request.json or request.json['topic'] == '':
+        return 'É necessário um tópico da mensagem para remove-la!'
+    elif request.json['topic'] != topic_name:
+        return 'Tópico do caminho não coincide com tópico na tupla!'
+    if 'msg' not in request.json and 'timestamp' not in request.json and 'id' not in request.json:
+        return 'É necessário mais informações sobre a mensagem para remove-la!'
+    t = []
+    passwd = request.json['passwd']
+    t.append(request.json['author'])
+    t.append(request.json['topic'])
+    if 'author' not in request.json :
+        t.append(str(object))
+    else:
+        t.append(request.json['author'])
+    if 'msg' not in request.json :
+        t.append(str(object))
+    else:
+        t.append(request.json['msg'])
+    if 'timestamp' not in request.json:
+        t.append(str(object))
+    else:
+        t.append(request.json['timestamp'])
+    if 'id' not in request.json:
+        t.append(str(object))
+    else:
+        t.append(request.json['timestamp'])
+    r = s.send_msg(tuple(t), passwd)
+    return 'ok'
+
 
 @app.route('/messenger/topics/<string:topic_name>/<int:msg_id>', methods=['DELETE'])
 def delete_msg(topic_name, msg_id):
